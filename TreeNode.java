@@ -26,36 +26,44 @@ public class TreeNode<E extends Comparable<E>> {
         if (x.compareTo(this.value) == 0) {
             return true;
         } else if (x.compareTo(this.value) < 0) {
-            return left.contains(x);
+            if (left == null) {
+                return false;
+            } else {
+                return left.contains(x);
+            }
         } else {
-            return right.contains(x);
+            if (right == null) {
+                return false;
+            } else {
+                return right.contains(x);
+            }
         }
     }
 
     public TreeNode<E> add(E x) {
         if (x.compareTo(this.value) > 0) {
-            if(left.value.compareTo(null) != 0){
+            if (right != null) {
                 return right.add(x);
-            }else{
+            } else {
                 TreeNode tn = new TreeNode(x);
                 right = tn;
                 return this;
             }
         } else if (x.compareTo(this.value) < 0) {
-            if(left.value.compareTo(null) != 0){
+            if (left != null) {
                 return left.add(x);
-            }else{
+            } else {
                 TreeNode tn = new TreeNode(x);
                 left = tn;
                 return this;
-            } 
+            }
         } else {
             return null;
         }
     }
 
     public E getMin() {
-        if (left.value.compareTo(null) != 0) {
+        if (left != null) {
             return left.getMin();
         } else {
             return value;
@@ -80,7 +88,28 @@ public class TreeNode<E extends Comparable<E>> {
 	   * from s smaller and greater than s
      */
     public Pair<TreeNode<E>> split(E x) {
-        throw new Error("A completer: exo 2");
+        
+        TreeNode esq = new TreeNode(null);
+        TreeNode dir = new TreeNode(null);
+        Pair p = new Pair(esq,dir);
+        
+        if (x.compareTo(value) < 0) {
+            dir = right;
+            if (left != null) {
+                return left.split(x);
+            } else {
+                
+            }
+        } else if (x.compareTo(value) > 0) {
+            esq = left;
+            if (right != null) {
+                return right.split(x);
+            } else {
+                
+            }
+        } else {
+
+        }
     }
 
     /* union */
