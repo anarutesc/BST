@@ -20,6 +20,8 @@ public class TreeNode<E extends Comparable<E>> {
 
     public TreeNode(E value) {
         this.value = value;
+        this.left = null;
+        this.right = null;
     }
 
     public boolean contains(E x) {
@@ -71,7 +73,17 @@ public class TreeNode<E extends Comparable<E>> {
     }
 
     static <E extends Comparable<E>> TreeNode<E> ofList(Queue<E> l, int n, int k) {
-        throw new Error("A completer: exo 1");
+
+        if (k == 0) {
+            if (n > 0) {
+                return new TreeNode(l.poll());
+            } else {
+                return null;
+            }
+        } else {
+            return new TreeNode<>(ofList(l, (n - 1) / 2, k - 1), l.poll(), ofList(l, n - (n - 1) / 2 - 1, k - 1));
+        }
+
     }
 
     static <E extends Comparable<E>> TreeNode<E> ofList(Queue<E> l) {
@@ -81,40 +93,92 @@ public class TreeNode<E extends Comparable<E>> {
 
     /* subset */
     static <E extends Comparable<E>> boolean subset(TreeNode<E> s1, TreeNode<E> s2) {
-        throw new Error("A completer: exo 2");
+        if (s1 == null) {
+            return true;
+        } else if (s2 == null) {
+            return false;
+        } else {
+            if (s1.value.compareTo(s2.value) == 0) {
+                return subset(s1.left, s2.left) && subset(s1.right, s2.right);
+            } else if (s1.value.compareTo(s2.value) < 0) {
+                TreeNode<E> aux = new TreeNode<>(s1.value);
+                return subset(aux.union(s1.left), s2.left) && subset(s1.right, s2);
+            } else {
+                TreeNode<E> aux = new TreeNode<>(s1.value);
+                return subset(aux.union(s1.right), s2.right) && subset(s1.left, s2);
+            }
+        }
     }
 
     /* split(v,s) returns two trees, containing values
 	   * from s smaller and greater than s
      */
     public Pair<TreeNode<E>> split(E x) {
-        
-        TreeNode esq = new TreeNode(null);
-        TreeNode dir = new TreeNode(null);
-        Pair p = new Pair(esq,dir);
-        
-        if (x.compareTo(value) < 0) {
-            dir = right;
-            if (left != null) {
-                return left.split(x);
-            } else {
-                
+
+        TreeNode esq = null;
+        TreeNode dir = null;
+
+        Queue<TreeNode<E>> fila = new LinkedList<>();
+        fila.add(this);
+
+        while (!fila.isEmpty()) {
+            TreeNode<E> noAtual = fila.element();
+            fila.poll();
+
+            if (x.compareTo(noAtual.value) > 0) {
+                if (esq == null) {
+                    esq = new TreeNode(noAtual.value);
+                } else {
+                    esq.add(noAtual.value);
+                }
+            } else if (x.compareTo(noAtual.value) < 0) {
+                if (dir == null) {
+                    dir = new TreeNode(noAtual.value);
+                } else {
+                    dir.add(noAtual.value);
+                }
             }
-        } else if (x.compareTo(value) > 0) {
-            esq = left;
-            if (right != null) {
-                return right.split(x);
-            } else {
-                
+
+            if (noAtual.left != null) {
+                fila.add(noAtual.left);
             }
-        } else {
+            if (noAtual.right != null) {
+                fila.add(noAtual.right);
+            }
 
         }
+
+        Pair p = new Pair(esq, dir);
+//           
+        return p;
     }
 
     /* union */
     public TreeNode<E> union(TreeNode<E> s2) {
-        throw new Error("A completer: exo 2");
+
+        if (s2 == null) {
+            return this;
+        } else {
+
+            Pair<TreeNode<E>> p;
+            TreeNode<E> u = new TreeNode(value);
+
+            p = s2.split(value);
+
+            if (left != null) {
+                u.left = left.union(p.a);
+            } else {
+                u.left = p.a;
+            }
+
+            if (right != null) {
+                u.right = right.union(p.b);
+            } else {
+                u.right = p.b;
+            }
+
+            return u;
+        }
     }
 
     public String infixOrder() {
